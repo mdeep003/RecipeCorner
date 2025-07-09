@@ -55,14 +55,24 @@ class RecipeViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val recipes = repository.findRecipesByIngredients(_ingredients.value)
-                println("ViewModel: Received ${recipes.size} recipes")
-                recipes.forEach { recipe ->
+                // --- SCORING AND SORTING LOGIC ---
+                val userIngredients = _ingredients.value.map { it.lowercase() }
+                val sortedRecipes = recipes.sortedWith(compareByDescending<Recipe> { recipe ->
+                    // Count matched ingredients
+                    val ingredients = recipe.extendedIngredients ?: emptyList()
+                    ingredients.count { ing ->
+                        ing.name?.lowercase() in userIngredients
+                    }
+                }.thenBy { it.readyInMinutes })
+                // --- END SCORING AND SORTING LOGIC ---
+                println("ViewModel: Received ${sortedRecipes.size} recipes (sorted)")
+                sortedRecipes.forEach { recipe ->
                     println("ViewModel: Recipe ${recipe.id} - ${recipe.title}")
-                    println("ViewModel: Ingredients: ${recipe.ingredients?.size ?: 0}")
+                    println("ViewModel: Ingredients: ${recipe.extendedIngredients?.size ?: 0}")
                     println("ViewModel: Instructions: ${recipe.instructions?.length ?: 0} chars")
                 }
                 _uiState.value = _uiState.value.copy(
-                    recipes = recipes,
+                    recipes = sortedRecipes,
                     isLoading = false,
                     error = null
                 )
