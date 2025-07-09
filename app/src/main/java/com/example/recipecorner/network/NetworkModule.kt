@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 object NetworkModule {
     
     private const val BASE_URL = "https://api.spoonacular.com/"
-    private const val API_KEY = "72fd5e43b62d4575a26f5c6edddc0ad7" // Replace with your actual API key
+    private const val API_KEY = "MY_SPOONCULAR_API" // Replace with your actual API key
     
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
